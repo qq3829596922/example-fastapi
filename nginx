@@ -1,13 +1,23 @@
 server {
-	listen 80;
-	listen [::]:80;
+    listen 80;
+    server_name _;  # 替换为你的域名或服务器IP
 
-	server_name example.com;
 
-	root /var/www/example.com;
-	index index.html;
+    location / {
+        # 将请求代理到Gunicorn服务器
+        proxy_pass http://localhost:8000;
+        
+        # 设置HTTP请求头
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # WebSocket支持 (如果你的应用使用WebSockets)
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
 
-	location / {
-		try_files $uri $uri/ =404;
-	}
+    }
+
+
 }
