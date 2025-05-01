@@ -1,0 +1,20 @@
+[Unit]
+Description=Gunicorn daemon for your_application_name
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+User=fastapi
+Group=fastapi
+WorkingDirectory=/home/fastapi/app/src/
+Environment="PATH=/home/fastapi/app/venv/bin"
+EnvironmentFile=/home/fastapi/.env
+ExecStart=/home/fastapi/app/venv/bin/gunicorn \
+          --workers 4 \
+          --worker-class uvicorn.workers.UvicornWorker \
+          --bind 0.0.0.0:8000 \
+          app.main:app
+
+
+[Install]
+WantedBy=multi-user.target
