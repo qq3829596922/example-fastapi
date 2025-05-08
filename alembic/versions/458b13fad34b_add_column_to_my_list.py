@@ -1,6 +1,6 @@
 """add column to my list
 
-Revision ID: 458b13fad34b
+Revision ID: 458b13fad34br
 Revises: d58ab442fa20
 Create Date: 2025-04-30 12:06:56.519012
 

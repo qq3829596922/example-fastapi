@@ -31,6 +31,7 @@ class postResponse(BaseModel):
     content:str
     owner_id:int
     owner:UserResponse
+    published:bool
     class Config:
         from_attributes=True
 
@@ -54,8 +55,10 @@ class User(BaseModel):
     created_at:Union[datetime,None] = None
     class Config:
         from_attributes=True
+
+        
 class UserCreate(BaseModel):
-    email:EmailStr=Field(alias="username")
+    email:EmailStr
     password:str
 
 

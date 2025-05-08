@@ -34,5 +34,5 @@ def vote(vote:Vote,db:Session=Depends(get_db),current_user=Depends(get_current_u
             db.commit()
             return {"message":"successfully deleted vote"}
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=f"数据库插入失败: {e}")
+        raise e
 

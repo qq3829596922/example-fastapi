@@ -36,24 +36,24 @@ app.include_router(auth.router)
 app.include_router(vote.router)
 @app.get("/")
 async def root2(request: Request):
-    print("请求头:")
-    for header, value in request.headers.items():
-        print(f"  {header}: {value}")
+    # print("请求头:")
+    # for header, value in request.headers.items():
+    #     print(f"  {header}: {value}")
     
-    # 打印请求信息
-    print(f"请求方法: {request.method}")
-    print(f"请求URL: {request.url}")
-    print(f"客户端地址: {request.client.host}:{request.client.port}")
+    # # 打印请求信息
+    # print(f"请求方法: {request.method}")
+    # print(f"请求URL: {request.url}")
+    # print(f"客户端地址: {request.client.host}:{request.client.port}")
     
-    # 如果是表单或JSON数据，可以打印请求体
-    try:
-        body = await request.body()
-        if body:
-            print(f"请求体: {body.decode()}")
-    except:
-        pass
+    # # 如果是表单或JSON数据，可以打印请求体
+    # try:
+    #     body = await request.body()
+    #     if body:
+    #         print(f"请求体: {body.decode()}")
+    # except:
+    #     pass
     
-    return {"message": "请求信息已在后端控制台打印"}
+    return {"message": "请求信息已在后端控制台打印!!!!13232dadad1QWWQEQEQWaaaaaaa"}
 
 # # 数据库连接
 # while True:
@@ -119,7 +119,7 @@ async def root2(request: Request):
 # 
 
 # @app.get("/annotation")
-# def test_post(test:Annotated[test2,Depends(get_test)]):
+# def test_posts(test:Annotated[test2,Depends(get_test)]):
 #     print(test)
 #     return {"status": "success"}
 

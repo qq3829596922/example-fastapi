@@ -52,6 +52,7 @@ def get_posts(db:Session=Depends(get_db),limit:int=10,skip:int=0,search:Optional
     join(models.Vote, models.Post.id == models.Vote.post_id, isouter=True).\
     group_by(models.Post.id).\
     filter(models.Post.title.contains(search)).\
+    order_by(models.Post.id).\
     limit(limit).\
     offset(skip).\
     all()
@@ -81,54 +82,50 @@ def get_latest_post(db:Session=Depends(get_db)):
 
 
 @router.get("/{id}",response_model=post_vote_Response)
-def get_post(id:int,db:Session=Depends(get_db),status_code=status.HTTP_200_OK,user_id=Depends(get_current_user)):
+def get_post(id:int,db:Session=Depends(get_db),status_code=status.HTTP_200_OK):
     print("dsadasd")
     print(id)  
-    post= db.\
-    query(models.Post, func.count(models.Vote.post_id).\
-    label("votes")).\
-    join(models.Vote, models.Post.id == models.Vote.post_id, isouter=True).\
-    group_by(models.Post.id).\
-    filter(models.Post.id==id).\
-    first()
-    # post.update({"owner_id":user_id})
-    # post.user_id=user_id
+    try:
+        post= db.\
+        query(models.Post, func.count(models.Vote.post_id).\
+        label("votes")).\
+        join(models.Vote, models.Post.id == models.Vote.post_id, isouter=True).\
+        group_by(models.Post.id).\
+        filter(models.Post.id==id).\
+        first()
+        response_post={}
 
-    # post_dict = post.__dict__.copy()
-    # post_dict["user_id"] = user_id
-    # hello=postResponse.model_validate(post)
-
-    # print(hello)
-    response_post={}
-    response_post["Post"]=post[0]
-    response_post["votes"]=post[1]
-
-    # post_dict=post.__dict__.copy()
-
-    # print(post_dict,"from post_dict--------------------")
-
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=f"数据库查询失败: {e}")
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="post not found")
+    
+
+    response_post.update({"Post":post[0],"votes":post[1]})
+
     print(post,"from post")
+
     return response_post
 
 
 
 @router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id:int,db:Session=Depends(get_db),user_id=Depends(get_current_user)):
+
+
+    post_query=db.query(models.Post).filter(models.Post.id==id)
+    post=post_query.first()
+    
+    if post is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="post not found")
+    if post.owner_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Not authorized to perform requested action")
     try:
-        post_query=db.query(models.Post).filter(models.Post.id==id)
-        post=post_query.first()
-        
-        if post is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="post not found")
-        if post.owner_id != user_id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Not authorized to perform requested action")
         post_query.delete(synchronize_session=False)
         db.commit()
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=f"数据库删除失败: {e}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"数据库删除失败: {e}")
 
 @router.put("/{id}")
 def update_post(id:int,payload:updatePost,db:Session=Depends(get_db),user_id=Depends(get_current_user)):
